@@ -1,1 +1,1 @@
-web: gunicorn ahalya.wsgi
+web: gunicorn ahalya.wsgi --log-file -
