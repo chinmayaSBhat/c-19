@@ -24,7 +24,7 @@ class Patient(models.Model):
     name = models.CharField(max_length=500)
     contact = models.CharField(max_length=10)
     country_code = models.CharField(max_length=5, default="+91")
-    adhaar_number = models.CharField(max_length=12,unique=True, null=True,blank=True)
+    adhaar_number = models.CharField(max_length=12, null=True,blank=True)
     admitted_to = models.ForeignKey(Hospital, on_delete=models.CASCADE)
     admission_timestamp = models.DateTimeField(auto_now=True)
     discharge_timestamp = models.DateTimeField(editable=False, null=True)

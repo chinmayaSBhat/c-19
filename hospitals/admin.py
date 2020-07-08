@@ -1,6 +1,7 @@
 from django.contrib import admin, messages
 from .models import *
 from django.contrib.auth.models import  Group
+from import_export.admin import ImportExportModelAdmin
 import datetime
 
 
@@ -13,7 +14,7 @@ admin.site.site_title = "Ahalya"
 admin.site.index_title = "Hospital Administration"
 
 @admin.register(Patient)
-class PatientAdmin(admin.ModelAdmin):
+class PatientAdmin(ImportExportModelAdmin):
 
     def save_model(self, request, obj, form, change):
         if not request.user.is_superuser: 
@@ -42,4 +43,6 @@ class PatientAdmin(admin.ModelAdmin):
     actions = ["discharge"]
     search_fields = ("name", "adhaar_number", "contact")
 
-admin.site.register(Hospital)
+@admin.register(Hospital)
+class HospitalAdmin(ImportExportModelAdmin):
+    pass
