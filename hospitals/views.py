@@ -3,7 +3,6 @@ from .serializers import *
 from .models import *
 from rest_framework import generics
 from rest_framework.views import APIView
-from geopy.distance import geodesic
 from rest_framework.response import Response
 # Create your views here.
 
@@ -14,9 +13,7 @@ class HospitalDetailedList(APIView):
         
         user_longitude = request.data["longitude"]
         user_latitude = request.data["latitude"]
-        queryset = Hospital.objects.all()
-        
-        
+        queryset = Hospital.objects.all()        
         serialized = HospitalSerializer(queryset, many=True,
         context={"user_longitude":user_longitude, "user_latitude":user_latitude}
         )

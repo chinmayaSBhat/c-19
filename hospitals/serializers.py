@@ -17,7 +17,7 @@ class HospitalSerializer(serializers.ModelSerializer):
         user_longitude = self.context.get("user_longitude")
         user_latitude = self.context.get("user_latitude")
 
-        return geodesic((user_longitude, user_latitude), (obj.longitude, obj.latitude)).miles
+        return round(geodesic((user_longitude, user_latitude), (obj.longitude, obj.latitude)).kilometers,2)
 
     def get_availability(self, obj):
         remaining_beds = obj.total_beds - Patient.objects.filter(admitted_to=obj, discharged=False).count()
