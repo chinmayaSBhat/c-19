@@ -1,11 +1,12 @@
 from django.contrib import admin, messages
 from .models import *
-from django.contrib.auth.models import  Group
+from django.contrib.auth.models import  Group, User
 from import_export.admin import ImportExportModelAdmin
 import datetime
 
 
 admin.site.unregister(Group)
+admin.site.unregister(User)
 # Register your models here.
 admin.site.site_header = "Ahalya"
 
@@ -45,4 +46,9 @@ class PatientAdmin(ImportExportModelAdmin):
 
 @admin.register(Hospital)
 class HospitalAdmin(ImportExportModelAdmin):
+    pass
+
+
+@admin.register(User)
+class UserAdmin(ImportExportModelAdmin):
     pass
