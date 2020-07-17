@@ -46,9 +46,21 @@ class PatientAdmin(ImportExportModelAdmin):
 
 @admin.register(Hospital)
 class HospitalAdmin(ImportExportModelAdmin):
+    autocomplete_fields = ['admin']
     pass
 
 
 @admin.register(User)
 class UserAdmin(ImportExportModelAdmin):
+    search_fields = ("username",)
+    pass
+
+@admin.register(Ambulance)
+class AmbulanceAdmin(ImportExportModelAdmin):
+    autocomplete_fields = ['admin']
+    pass
+
+@admin.register(MedicalService)
+class MedicalServiceAdmin(ImportExportModelAdmin):
+    autocomplete_fields = ['admin']
     pass
