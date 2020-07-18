@@ -4,6 +4,8 @@ from .models import *
 from rest_framework import generics
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
+
 # Create your views here.
 
 class AhalyaLocationView(APIView):
@@ -26,21 +28,43 @@ class AhalyaLocationView(APIView):
         return Response(serialized.data)
 
 
-class HospitalDetailedList(AhalyaLocationView):
+class HospitalList(AhalyaLocationView):
     def __obtain_queryset__(self):
         return Hospital.objects.all()
     
     def __obtain_serializer__(self):
         return HospitalSerializer
     
-class AmbulanceDetailedList(AhalyaLocationView):
+class AmbulanceList(AhalyaLocationView):
     def __obtain_queryset__(self):
         return Ambulance.objects.all()
 
     def __obtain_serializer__(self):
-        return AmbulanceSerializer
+        return AmbulanceSerialize
 
-class MedicalServiceDetailedList(AhalyaLocationView):
+
+class AmbulanceDetail(generics.ListAPIView):
+
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+        return Ambulance.objects.filter(admin=user)
+    
+    serializer_class = AmbulanceSerializer
+
+
+class AmbulanceUpdate(generics.UpdateAPIView):
+    
+    permission_classes = [IsAuthenticated]
+
+    queryset = Ambulance.objects.all()
+    
+    serializer_class = AmbulanceSerializer
+
+
+
+class MedicalServiceList(AhalyaLocationView):
     def __obtain_queryset__(self):
         return MedicalService.objects.all()
 

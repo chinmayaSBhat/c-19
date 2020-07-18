@@ -6,7 +6,7 @@ import datetime
 
 
 admin.site.unregister(Group)
-admin.site.unregister(User)
+
 # Register your models here.
 admin.site.site_header = "Ahalya"
 
@@ -50,11 +50,6 @@ class HospitalAdmin(ImportExportModelAdmin):
     pass
 
 
-@admin.register(User)
-class UserAdmin(ImportExportModelAdmin):
-    search_fields = ("username",)
-    pass
-
 @admin.register(Ambulance)
 class AmbulanceAdmin(ImportExportModelAdmin):
     autocomplete_fields = ['admin']
@@ -63,4 +58,19 @@ class AmbulanceAdmin(ImportExportModelAdmin):
 @admin.register(MedicalService)
 class MedicalServiceAdmin(ImportExportModelAdmin):
     autocomplete_fields = ['admin']
-    pass
+    
+    def save_model(self, request, obj, form, change):
+        if not request.user.is_superuser: 
+            obj.admitted_to = MedicalService.objects.filter(admin=request.user)[0]
+        super().save_model(request, obj, form, change)
+    
+    def get_queryset(self, request):
+        qs = super(MedicalServiceAdmin, self).get_queryset(request)
+        if request.user.is_superuser:
+            return qs
+        return qs.filter(admin = request.user)
+
+    def get_form(self, request, obj=None, **kwargs):
+        if not request.user.is_superuser:
+            self.fields=["occupied"]
+        return super(MedicalServiceAdmin, self).get_form(request, obj, **kwargs)
