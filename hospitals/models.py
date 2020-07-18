@@ -12,7 +12,7 @@ class LocationEntity(models.Model):
     address = models.TextField(max_length=1500)
     pincode = models.CharField(max_length=6)
     phone_area_code = models.CharField(max_length=6)
-    contact = models.CharField(max_length=10)
+    contact = models.CharField(max_length=10, unique=True)
     country_code = models.CharField(max_length=5, default="+91")
     active  = models.BooleanField(default=True)
 
@@ -32,7 +32,7 @@ class Hospital(LocationEntity):
     
 class Patient(models.Model):
     name = models.CharField(max_length=500)
-    contact = models.CharField(max_length=10)
+    contact = models.CharField(max_length=10, unique=True)
     country_code = models.CharField(max_length=5, default="+91")
     adhaar_number = models.CharField(max_length=12, null=True,blank=True)
     admitted_to = models.ForeignKey(Hospital, on_delete=models.CASCADE)
