@@ -1,7 +1,10 @@
 from django.contrib import admin, messages
 from .models import *
 from django.contrib.auth.models import  Group, User
+from django.contrib.auth.admin import UserAdmin
+from django.contrib.auth.hashers import make_password
 from import_export.admin import ImportExportModelAdmin
+from import_export import resources
 import datetime
 
 admin.site.unregister(User)
@@ -75,6 +78,19 @@ class MedicalServiceAdmin(ImportExportModelAdmin):
             self.fields=["occupied"]
         return super(MedicalServiceAdmin, self).get_form(request, obj, **kwargs)
 
+
+
+class UserPasswordResource(resources.ModelResource):
+    
+    def before_import_row(self, row, **kwargs):
+        value = row['password']
+        row['password'] = make_password(value)
+    
+    class Meta:
+        model = User
+
+
 @admin.register(User)
-class UserAdmin(ImportExportModelAdmin):
+class UserAlteredAdmin(UserAdmin, ImportExportModelAdmin):
     search_fields = ("username",)
+    resource_class = UserPasswordResource
