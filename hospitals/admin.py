@@ -4,7 +4,7 @@ from django.contrib.auth.models import  Group, User
 from import_export.admin import ImportExportModelAdmin
 import datetime
 
-
+admin.site.unregister(User)
 admin.site.unregister(Group)
 
 # Register your models here.
@@ -74,3 +74,7 @@ class MedicalServiceAdmin(ImportExportModelAdmin):
         if not request.user.is_superuser:
             self.fields=["occupied"]
         return super(MedicalServiceAdmin, self).get_form(request, obj, **kwargs)
+
+@admin.register(User)
+class UserAdmin(ImportExportModelAdmin):
+    search_fields = ("username",)
