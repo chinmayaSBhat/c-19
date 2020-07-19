@@ -27,7 +27,7 @@ class HospitalSerializer(serializers.ModelSerializer):
         return obj.total_high_oxygen_flow_beds - Patient.objects.filter(admitted_to=obj, bed_type="HIGH FLOW OXYGEN" ,discharged=False).count()            
 
     def get_remaining_regular_oxygen_flow(self, obj):
-        return obj.total_high_oxygen_flow_beds - Patient.objects.filter(admitted_to=obj, bed_type="REGULAR FLOW OXYGEN" ,discharged=False).count()
+        return obj.total_regular_oxygen_flow_beds - Patient.objects.filter(admitted_to=obj, bed_type="REGULAR FLOW OXYGEN" ,discharged=False).count()
 
     def get_distance(self, obj):
         user_longitude = self.context.get("user_longitude")
@@ -36,12 +36,18 @@ class HospitalSerializer(serializers.ModelSerializer):
         return round(geodesic((user_longitude, user_latitude), (obj.longitude, obj.latitude)).kilometers,2)
 
     def get_availability(self, obj):
-        remaining_beds = obj.total_beds - Patient.objects.filter(admitted_to=obj, discharged=False).count()
-        return int((remaining_beds/obj.total_beds)*100)
+        total_beds = (obj.total_isolation_beds+ 
+        obj.total_icu_beds+ obj.total_ventilated_beds+ obj.total_high_oxygen_flow_beds
+        + obj.total_regular_oxygen_flow_beds)
+        remaining_beds = total_beds - Patient.objects.filter(admitted_to=obj, discharged=False).count()
+        return int((remaining_beds/total_beds)*100)
     
     def get_comfortness(self, obj):
-        remaining_beds = obj.total_beds - Patient.objects.filter(admitted_to=obj, discharged=False).count()
-        availability = int((remaining_beds/obj.total_beds)*100)
+        total_beds = (obj.total_isolation_beds+ 
+        obj.total_icu_beds+ obj.total_ventilated_beds+ obj.total_high_oxygen_flow_beds
+        + obj.total_regular_oxygen_flow_beds)
+        remaining_beds = total_beds - Patient.objects.filter(admitted_to=obj, discharged=False).count()
+        availability = int((remaining_beds/total_beds)*100)
         user_longitude = self.context.get("user_longitude")
         user_latitude = self.context.get("user_latitude")
 
@@ -55,7 +61,7 @@ class HospitalSerializer(serializers.ModelSerializer):
         model = Hospital
         fields = ["id","name", "logo","longitude", "latitude","address",
         "pincode","phone_area_code","contact","country_code","active",
-        "total_isolation_beds","total_icu_beds","total_ventilated_beds","total_high_oxygen_flow_beds","total_regular_oxygen_flow_beds" 
+        "total_isolation_beds","total_icu_beds","total_ventilated_beds","total_high_oxygen_flow_beds","total_regular_oxygen_flow_beds", 
         "remaining_isolation_beds","remaining_icu_beds","remaining_ventilated_beds","remaining_high_oxygen_flow_beds","remaining_regular_oxygen_flow_beds",
          "geodesic_distance","comfortness","bed_availability"]
 
