@@ -19,6 +19,11 @@ class UserMinimalSerializer(serializers.ModelSerializer):
         model = User
         fields = "__all__"
 
+class AmbulanceMinimalSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Ambulance
+        fields = "__all__"
 
 class HospitalSerializer(serializers.ModelSerializer):
     remaining_isolation_beds = serializers.SerializerMethodField("get_remaining_isolation_beds")
