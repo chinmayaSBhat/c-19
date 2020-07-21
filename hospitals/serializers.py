@@ -34,6 +34,8 @@ class HospitalSerializer(serializers.ModelSerializer):
     geodesic_distance = serializers.SerializerMethodField("get_distance")
     bed_availability = serializers.SerializerMethodField("get_availability")
     comfortness = serializers.SerializerMethodField("get_comfortness")
+    total_beds=serializers.SerializerMethodField("get_total_beds")
+    remaining_beds=serializers.SerializerMethodField("remaining_beds")
 
     def get_remaining_isolation_beds(self, obj):
         return obj.total_isolation_beds - Patient.objects.filter(admitted_to=obj, bed_type="ISOLATION" ,discharged=False).count()
@@ -62,6 +64,18 @@ class HospitalSerializer(serializers.ModelSerializer):
         + obj.total_regular_oxygen_flow_beds)
         remaining_beds = total_beds - Patient.objects.filter(admitted_to=obj, discharged=False).count()
         return int((remaining_beds/total_beds)*100)
+
+    def get_total_beds(self, obj):
+        total_beds = (obj.total_isolation_beds+ 
+        obj.total_icu_beds+ obj.total_ventilated_beds+ obj.total_high_oxygen_flow_beds
+        + obj.total_regular_oxygen_flow_beds)
+        return total_beds
+    def remaining_beds(self,obj):
+        total_beds = (obj.total_isolation_beds+ 
+        obj.total_icu_beds+ obj.total_ventilated_beds+ obj.total_high_oxygen_flow_beds
+        + obj.total_regular_oxygen_flow_beds)
+        remaining_beds = total_beds - Patient.objects.filter(admitted_to=obj, discharged=False).count()
+        return remaining_beds
     
     def get_comfortness(self, obj):
         total_beds = (obj.total_isolation_beds+ 
@@ -84,7 +98,7 @@ class HospitalSerializer(serializers.ModelSerializer):
         "pincode","phone_area_code","contact","country_code","active",
         "total_isolation_beds","total_icu_beds","total_ventilated_beds","total_high_oxygen_flow_beds","total_regular_oxygen_flow_beds", 
         "remaining_isolation_beds","remaining_icu_beds","remaining_ventilated_beds","remaining_high_oxygen_flow_beds","remaining_regular_oxygen_flow_beds",
-         "geodesic_distance","comfortness","bed_availability"]
+         "geodesic_distance","comfortness","bed_availability","total_beds","remaining_beds"]
 
 
 class AmbulanceSerializer(serializers.ModelSerializer):
