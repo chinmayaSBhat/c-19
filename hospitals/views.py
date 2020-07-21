@@ -60,7 +60,7 @@ class AmbulanceUpdate(generics.UpdateAPIView):
 
     queryset = Ambulance.objects.all()
     
-    serializer_class = AmbulanceSerializer
+    serializer_class = AmbulanceSerializer(partial=True)
 
 
 

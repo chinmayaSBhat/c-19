@@ -54,8 +54,14 @@ class Patient(models.Model):
 class Ambulance(LocationEntity):
     registration_number = models.CharField(max_length=20, unique=True)
     associated_hospital = models.ForeignKey(Hospital, on_delete=models.CASCADE, null=True, blank=True)
-    logged_in = models.BooleanField(default=False)
-    occupied = models.BooleanField(default=False)
+    logged_in = models.CharField(max_length=5, default="true", choices=(
+    ("true","true"),
+    ("false","false")
+    ))
+    occupied = models.CharField(max_length=5, default="false", choices=(
+    ("true","true"),
+    ("false","false")
+    ))
     ambulance_type = models.CharField(max_length=20, choices=(
         ("ICU","ICU"),
         ("COLLECTIVE","COLLECTIVE"),
