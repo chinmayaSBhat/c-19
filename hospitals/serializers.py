@@ -1,8 +1,24 @@
 from rest_framework import serializers
 from .models import *
+from django.contrib.auth.models import User
 from django.db.models import Count
 
 from geopy.distance import geodesic
+
+
+
+class HospitalMinimalSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Hospital
+        fields = "__all__"
+
+class UserMinimalSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = User
+        fields = "__all__"
+
 
 class HospitalSerializer(serializers.ModelSerializer):
     remaining_isolation_beds = serializers.SerializerMethodField("get_remaining_isolation_beds")
@@ -67,6 +83,8 @@ class HospitalSerializer(serializers.ModelSerializer):
 
 
 class AmbulanceSerializer(serializers.ModelSerializer):
+    associated_hospital = HospitalMinimalSerializer(many=False)
+    admin = UserMinimalSerializer(many=False)
     geodesic_distance = serializers.SerializerMethodField("get_distance")
     def get_distance(self, obj):
         user_longitude = self.context.get("user_longitude")
@@ -77,7 +95,7 @@ class AmbulanceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Ambulance
         fields = ["id","name", "logo","longitude", "latitude","address",
-        "pincode","phone_area_code","contact","country_code","active","registration_number","associated_hospital","logged_in","occupied","ambulance_type",
+        "pincode","phone_area_code","contact","country_code","admin","active","registration_number","associated_hospital","logged_in","occupied","ambulance_type",
         "geodesic_distance"]
 
 class MedicalSerivceSerializer(serializers.ModelSerializer):
@@ -93,3 +111,4 @@ class MedicalSerivceSerializer(serializers.ModelSerializer):
         fields = ["id","name", "logo","longitude", "latitude","address",
         "pincode","phone_area_code","contact","country_code","active","registration_number","associated_hospital","logged_in","occupied","service_type",
         "geodesic_distance"]
+
