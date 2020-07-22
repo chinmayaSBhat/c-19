@@ -8,7 +8,7 @@ from rest_framework.permissions import IsAuthenticated
 
 # Create your views here.
 
-class AhalyaLocationView(APIView):
+class ArundhathiLocationView(APIView):
     def __obtain_queryset__(self):
         pass
     
@@ -28,14 +28,14 @@ class AhalyaLocationView(APIView):
         return Response(serialized.data)
 
 
-class HospitalList(AhalyaLocationView):
+class HospitalList(ArundhathiLocationView):
     def __obtain_queryset__(self):
         return Hospital.objects.all()
     
     def __obtain_serializer__(self):
         return HospitalSerializer
     
-class AmbulanceList(AhalyaLocationView):
+class AmbulanceList(ArundhathiLocationView):
     def __obtain_queryset__(self):
         return Ambulance.objects.all()
 
@@ -75,7 +75,7 @@ class AmbulanceUpdate(APIView):
         return Response(serialized.data)
   
 
-class MedicalServiceList(AhalyaLocationView):
+class MedicalServiceList(ArundhathiLocationView):
     def __obtain_queryset__(self):
         return MedicalService.objects.all()
 
