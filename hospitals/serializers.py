@@ -6,6 +6,11 @@ from django.db.models import Count
 from geopy.distance import geodesic
 
 
+class ServiceEntitySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ServiceEntity
+        fields = "__all__"
+
 
 class HospitalMinimalSerializer(serializers.ModelSerializer):
 
@@ -85,10 +90,7 @@ class HospitalSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Hospital
-        fields = ["id","name", "logo","longitude", "latitude","address",
-        "pincode","phone_area_code","contact","country_code","active",
-        "total_isolation_beds","total_icu_beds","total_ventilated_beds","total_high_oxygen_flow_beds","total_regular_oxygen_flow_beds", 
-        "remaining_isolation_beds","remaining_icu_beds","remaining_ventilated_beds","remaining_high_oxygen_flow_beds","remaining_regular_oxygen_flow_beds",
+        fields =  [field.name for field in LocationEntity._meta.get_fields()]+["remaining_isolation_beds","remaining_icu_beds","remaining_ventilated_beds","remaining_high_oxygen_flow_beds","remaining_regular_oxygen_flow_beds",
         "geodesic_distance","comfortness","bed_availability"]
 
 
@@ -104,12 +106,12 @@ class AmbulanceSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Ambulance
-        fields = ["id","name", "logo","longitude", "latitude","address",
-        "pincode","phone_area_code","contact","country_code","admin","active","registration_number","associated_hospital","logged_in","occupied","ambulance_type",
+        fields = [field.name for field in LocationEntity._meta.get_fields()]+["registration_number","associated_hospital","logged_in","occupied","ambulance_type",
         "geodesic_distance"]
 
 class MedicalSerivceSerializer(serializers.ModelSerializer):
     geodesic_distance = serializers.SerializerMethodField("get_distance")
+    service_type = ServiceEntitySerializer(many=False)
     def get_distance(self, obj):
         user_longitude = self.context.get("user_longitude")
         user_latitude = self.context.get("user_latitude")
@@ -118,7 +120,6 @@ class MedicalSerivceSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = MedicalService
-        fields = ["id","name", "logo","longitude", "latitude","address",
-        "pincode","phone_area_code","contact","country_code","active","associated_hospital","occupied","service_type",
+        fields = [field.name for field in LocationEntity._meta.get_fields()]+["associated_hospital","occupied","service_type",
         "geodesic_distance"]
 
