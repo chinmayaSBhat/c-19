@@ -3,13 +3,26 @@ from django.contrib.auth.models import User
 # Create your models here.
 
 
+class ServiceEntity(models.Model):
+    service_type = models.CharField(max_length = 100)
+    icon_url = models.URLField(max_length=2000, null=True, blank=True)
+    description = models.TextField(max_length = 200, null=True, blank=True)
+    
+    def __str__(self):
+        return str(self.service_type)
+
 class LocationEntity(models.Model):
     name = models.CharField(max_length=100)
     longitude = models.DecimalField(max_digits=9, decimal_places=6)
     latitude = models.DecimalField(max_digits=9, decimal_places=6)
     logo = models.URLField(max_length=2500, null=True, blank=True)
     admin = models.OneToOneField(User, on_delete=models.CASCADE, default=1)
-    address = models.TextField(max_length=1500)
+    address1 = models.CharField(max_length=200)
+    address2 = models.CharField(max_length=200, blank=True, null=True)
+    city = models.CharField(max_length=200)
+    district = models.CharField(max_length=200)
+    state = models.CharField(max_length=200)
+    country = models.CharField(max_length=200)
     pincode = models.CharField(max_length=6)
     phone_area_code = models.CharField(max_length=6)
     contact = models.CharField(max_length=10, unique=True)
@@ -76,11 +89,7 @@ class Ambulance(LocationEntity):
 class MedicalService(LocationEntity):
     occupied = models.BooleanField(default=False)
     associated_hospital = models.ForeignKey(Hospital, on_delete=models.CASCADE, null=True, blank=True)
-    service_type = models.CharField(max_length=20,choices=(
-        ("PHARMACY","PHARMACY"),
-        ("LABORATORY","LABORATORY"),
-        ("CLINIC","CLINIC")
-    ))
+    service_type = models.ForiegnKey(ServiceEntity, on_delete= models.CASCADE, default = 1)
 
     def __str__(self):
         return str(self.name)
