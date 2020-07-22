@@ -117,6 +117,6 @@ class MedicalSerivceSerializer(serializers.ModelSerializer):
     class Meta:
         model = MedicalService
         fields = ["id","name", "logo","longitude", "latitude","address",
-        "pincode","phone_area_code","contact","country_code","active","registration_number","associated_hospital","logged_in","occupied","service_type",
+        "pincode","phone_area_code","contact","country_code","active","associated_hospital","occupied","service_type",
         "geodesic_distance"]
 
