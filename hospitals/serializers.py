@@ -20,6 +20,8 @@ class UserMinimalSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 class AmbulanceMinimalSerializer(serializers.ModelSerializer):
+    associated_hospital = HospitalMinimalSerializer(many=False)
+    admin = UserMinimalSerializer(many=False)
 
     class Meta:
         model = Ambulance
