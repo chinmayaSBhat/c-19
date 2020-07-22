@@ -89,7 +89,7 @@ class Ambulance(LocationEntity):
 class MedicalService(LocationEntity):
     occupied = models.BooleanField(default=False)
     associated_hospital = models.ForeignKey(Hospital, on_delete=models.CASCADE, null=True, blank=True)
-    service_type = models.ForiegnKey(ServiceEntity, on_delete= models.CASCADE, default = 1)
+    service_type = models.ForeignKey(ServiceEntity, on_delete= models.CASCADE, default = 1)
 
     def __str__(self):
         return str(self.name)
