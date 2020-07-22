@@ -51,7 +51,7 @@ class AmbulanceDetail(generics.ListAPIView):
         user = self.request.user
         return Ambulance.objects.filter(admin=user)
     
-    serializer_class = AmbulanceSerializer
+    serializer_class = AmbulanceMinimalSerializer
 
 
 class AmbulanceUpdate(generics.UpdateAPIView):
