@@ -72,7 +72,7 @@ class AmbulanceUpdate(APIView):
         
         serialized = AmbulanceMinimalSerializer(context_ambulance, many=False)
         
-        return Response(serialzed.data)
+        return Response(serialized.data)
   
 
 class MedicalServiceList(AhalyaLocationView):
