@@ -54,15 +54,26 @@ class AmbulanceDetail(generics.ListAPIView):
     serializer_class = AmbulanceMinimalSerializer
 
 
-class AmbulanceUpdate(generics.UpdateAPIView):
+class AmbulanceUpdate(APIView):
     
-    permission_classes = [IsAuthenticated]
-
-    queryset = Ambulance.objects.all()
-    
-    serializer_class = AmbulanceMinimalSerializer
-
-
+    def post(self, request, format=None):
+        ambulance_id = request.data["id"]
+        occupied = request.data["occupied"]
+        user_longitude = request.data["longitude"]
+        user_latitude = request.data["latitude"]
+        
+        context_ambulance = Ambulance.objects.get(id=ambulance_id)
+        
+        context_ambulance.occupied = occupied
+        context_ambulance.latitude = user_latitude
+        context_ambulance.longitude = user_longitude
+        
+        context_ambulance.save()
+        
+        serialized = AmbulanceMinimalSerializer(context_ambulance, many=False)
+        
+        return Response(serialzed.data)
+  
 
 class MedicalServiceList(AhalyaLocationView):
     def __obtain_queryset__(self):
