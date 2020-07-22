@@ -60,6 +60,8 @@ class AmbulanceUpdate(generics.UpdateAPIView):
 
     queryset = Ambulance.objects.all()
     
+    serializer_class = AmbulanceSerializer
+    
     def get_serializer(self, instance=None, data=None,
                        files=None, many=False, partial=True):
         """
