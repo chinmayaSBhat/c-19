@@ -11,9 +11,9 @@ admin.site.unregister(User)
 admin.site.unregister(Group)
 
 # Register your models here.
-admin.site.site_header = "Ahalya"
+admin.site.site_header = "Arundhathi"
 
-admin.site.site_title = "Ahalya"
+admin.site.site_title = "Arundhathi"
 
 admin.site.index_title = "Hospital Administration"
 
