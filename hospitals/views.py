@@ -60,18 +60,7 @@ class AmbulanceUpdate(generics.UpdateAPIView):
 
     queryset = Ambulance.objects.all()
     
-    serializer_class = AmbulanceSerializer
-    
-    def get_serializer(self, instance=None, data=None,
-                       files=None, many=False, partial=True):
-        """
-        Return the serializer instance that should be used for validating and
-        deserializing input, and for serializing output.
-        """
-        serializer_class = self.get_serializer_class()
-        context = self.get_serializer_context()
-        return serializer_class(instance, data=data, files=files,
-                                many=many, partial=True, context=context)
+    serializer_class = AmbulanceMinimalSerializer
 
 
 
