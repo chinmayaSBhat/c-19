@@ -94,3 +94,9 @@ class UserPasswordResource(resources.ModelResource):
 class UserAlteredAdmin(UserAdmin, ImportExportModelAdmin):
     search_fields = ("username",)
     resource_class = UserPasswordResource
+    
+
+@admin.register(ServiceEntity)
+class ServiceEntityAdmin(ImportExportModelAdmin):
+    pass
+    
