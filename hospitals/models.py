@@ -1,5 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.utils import timezone
+import datetime
 # Create your models here.
 
 
@@ -42,26 +44,9 @@ class Hospital(LocationEntity):
     total_high_oxygen_flow_beds = models.SmallIntegerField(default=0)
     total_regular_oxygen_flow_beds = models.SmallIntegerField(default=0)
     
-    
-class Patient(models.Model):
-    name = models.CharField(max_length=500)
-    contact = models.CharField(max_length=10, unique=True)
-    country_code = models.CharField(max_length=5, default="+91")
-    adhaar_number = models.CharField(max_length=12, null=True,blank=True)
-    admitted_to = models.ForeignKey(Hospital, on_delete=models.CASCADE)
-    bed_type = models.CharField(max_length=50, choices=(
-        ("ISOLATION","ISOLATION"),
-        ("ICU","ICU"),
-        ("VENTILATED","VENTILATED"),
-        ("HIGH FLOW OXYGEN","HIGH FLOW OXYGEN"),
-        ("REGULAR FLOW OXYGEN","REGULAR FLOW OXYGEN")
-    ), default="ISOLATION")
-    admission_timestamp = models.DateTimeField(auto_now=True)
-    discharge_timestamp = models.DateTimeField(editable=False, null=True)
-    discharged = models.BooleanField(default=False)
-   
     def __str__(self):
         return str(self.name)
+    
          
 
 class Ambulance(LocationEntity):
@@ -94,3 +79,67 @@ class MedicalService(LocationEntity):
     def __str__(self):
         return str(self.name)
 
+
+class Test(models.Model):
+    name = models.CharField(max_length=50)
+    description = models.TextField(max_length=150)
+
+    def __str__(self):
+        return str(self.name)
+
+class Sign(models.Model):
+    name = models.CharField(max_length=50)
+    description = models.TextField(max_length=150)
+
+    def __str__(self):
+        return str(self.name)
+
+class Patient(models.Model):
+    name = models.CharField(max_length=500)
+    contact = models.CharField(max_length=10, unique=True)
+    srf_id = models.CharField(max_length=13, unique=True )
+    bu_number = models.CharField(max_length=10, unique=True, null=True, blank=True)
+    date_of_birth = models.DateField(default=timezone.now())
+    gender = models.CharField(max_length=6, choices=(
+        ("MALE","MALE"), ("FEMALE", "FEMALE"), ("OTHERS","OTHERS")
+    ))
+    country_code = models.CharField(max_length=5, default="+91")
+    adhaar_number = models.CharField(max_length=12, null=True,blank=True)
+    admitted_to = models.ForeignKey(Hospital, on_delete=models.CASCADE)
+    bed_type = models.CharField(max_length=50, choices=(
+        ("ISOLATION","ISOLATION"),
+        ("ICU","ICU"),
+        ("VENTILATED","VENTILATED"),
+        ("HIGH FLOW OXYGEN","HIGH FLOW OXYGEN"),
+        ("REGULAR FLOW OXYGEN","REGULAR FLOW OXYGEN")
+    ), default="ISOLATION")
+    admission_timestamp = models.DateTimeField(auto_now=True)
+    discharge_timestamp = models.DateTimeField(editable=False, null=True)
+    discharged = models.BooleanField(default=False)
+    deceased =models.BooleanField(default=False)
+   
+    def age(self):
+        return str((datetime.date.today() - self.date_of_birth).days // 365) +" years"
+
+    def __str__(self):
+        return str(self.name) + " | " + str(self.age()) + " | " + str(self.gender) + " | " + str(self.adhaar_number)
+
+    
+
+class Observation(models.Model):
+    patient = models.ForeignKey(Patient, on_delete=models.CASCADE)
+    observation_for = models.ForeignKey(Test, on_delete=models.CASCADE)
+    observation_value = models.CharField(max_length=100)
+    observation_date = models.DateField(default=timezone.now())
+
+    def __str__(self) -> str:
+        return str(self.patient) +"-"+ str(self.observation_for) +"-"+ str(self.observation_date)
+
+class Investigation(models.Model):
+    patient = models.ForeignKey(Patient, on_delete=models.CASCADE)
+    investigation_for = models.ManyToManyField(Sign, related_name="Markers")
+    investigation_feedback = models.TextField(max_length=1000)
+    investigation_date = models.DateField(default=timezone.now())
+
+    def __str__(self) -> str:
+        return str(self.patient) +"-"+ str(self.investigation_for) +"-"+ str(self.investigation_date)

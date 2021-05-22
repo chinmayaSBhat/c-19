@@ -45,7 +45,11 @@ class PatientAdmin(ImportExportModelAdmin):
         return super(PatientAdmin, self).get_form(request, obj, **kwargs)
 
     actions = ["discharge"]
-    search_fields = ("name", "adhaar_number", "contact")
+    search_fields = ("name", "gender" ,"contact", "adhaar_number")
+    list_display = ["name","gender", "age", "adhaar_number", "contact"]
+
+    def age(self, obj):
+        return str((datetime.date.today() - obj.date_of_birth).days // 365) + " years"
 
 @admin.register(Hospital)
 class HospitalAdmin(ImportExportModelAdmin):
@@ -99,4 +103,46 @@ class UserAlteredAdmin(UserAdmin, ImportExportModelAdmin):
 @admin.register(ServiceEntity)
 class ServiceEntityAdmin(ImportExportModelAdmin):
     pass
+    
+
+@admin.register(Test)
+class TestEntityAdmin(ImportExportModelAdmin):
+    search_fields = ["name"]
+
+@admin.register(Sign)
+class SignsEntityAdmin(ImportExportModelAdmin):
+    search_fields = ["name"]
+
+@admin.register(Observation)
+class ObservationEntityAdmin(ImportExportModelAdmin):
+    
+    list_filter = ["observation_date", "patient__gender" ,"observation_for"]
+    list_display = ["patient", "observation_for","observation_value"]
+    list_editable = ["observation_value"]
+    autocomplete_fields = ["patient", "observation_for"]
+    search_fields = ["patient__name","patient__adhaar_number"]
+
+
+@admin.register(Investigation)
+class InvestigationEntityAdmin(ImportExportModelAdmin):
+
+    list_filter = ["investigation_date", "patient__gender" ,"investigation_for"]
+    list_display = ["patient", "investigation_for_signs","investigation_feedback"]
+    list_editable = ["investigation_feedback"]
+    autocomplete_fields = ["patient", "investigation_for"]
+    search_fields = ["patient__name","patient__adhaar_number"]
+
+    def get_queryset(self, request):
+        qs = super(InvestigationEntityAdmin, self).get_queryset(request)
+        if request.user.is_superuser:
+            return qs
+        return qs.filter(patient__admitted_to = Hospital.objects.filter(admin=request.user)[0])
+
+    def investigation_for_signs(self, obj):
+        investigation_for_string = ""
+        for x in obj.investigation_for.all():
+
+            investigation_for_string = investigation_for_string+ x.name+ ", " 
+        print(investigation_for_string)
+        return investigation_for_string
     
