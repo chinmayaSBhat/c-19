@@ -1,10 +1,11 @@
-from django.shortcuts import render
+from django.shortcuts import get_object_or_404, render
 from .serializers import *
 from .models import *
 from rest_framework import generics
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
+from django.views.generic import ListView, DetailView
 
 # Create your views here.
 
@@ -81,3 +82,23 @@ class MedicalServiceList(ArundhathiLocationView):
 
     def __obtain_serializer__(self):
         return MedicalSerivceSerializer    
+
+
+class PatientListView(ListView):
+    model = Patient
+    context_object_name = "patient_list"
+
+    def get_queryset(self):
+        context_hospital = get_object_or_404(Hospital, admin=self.request.user)
+        context_patient_list = Patient.objects.filter(admitted_to= context_hospital)
+        return context_patient_list
+
+
+class PatientReadView(DetailView):
+    model  = Patient
+    context_object_name = "patient_detail"
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['investigations'] = Investigation.objects.filter(patient = self.get_object())
+        context['observations'] = Observation.objects.filter(patient = self.get_object())
+        return context

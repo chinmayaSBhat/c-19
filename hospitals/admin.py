@@ -41,7 +41,7 @@ class PatientAdmin(ImportExportModelAdmin):
         self.exclude = []
         if not request.user.is_superuser:
             print("Uhoh")
-            self.exclude+=["admitted_to", "discharged", "discharge_timestamp"] #here!
+            self.exclude+=["admitted_to", "discharged", "discharge_timestamp", "deceased"] #here!
         return super(PatientAdmin, self).get_form(request, obj, **kwargs)
 
     actions = ["discharge"]
@@ -56,6 +56,9 @@ class HospitalAdmin(ImportExportModelAdmin):
     autocomplete_fields = ['admin']
     pass
 
+@admin.register(Doctor)
+class DoctorAdmin(ImportExportModelAdmin):
+    pass
 
 @admin.register(Ambulance)
 class AmbulanceAdmin(ImportExportModelAdmin):
@@ -122,6 +125,26 @@ class ObservationEntityAdmin(ImportExportModelAdmin):
     autocomplete_fields = ["patient", "observation_for"]
     search_fields = ["patient__name","patient__adhaar_number"]
 
+    def get_queryset(self, request):
+        qs = super(ObservationEntityAdmin, self).get_queryset(request)
+        if request.user.is_superuser:
+            return qs
+        elif isinstance(request.user, Doctor):
+            qs.filter(patient__admitted_to = Hospital.objects.filter(admin=request.user)[0], observing_doctor= request.user)
+        else:
+            return qs.filter(patient__admitted_to = Hospital.objects.filter(admin=request.user)[0])
+    
+    def get_form(self, request, obj=None, **kwargs):
+        self.exclude = []
+        if isinstance(request.user, Doctor):
+            print("Doctor is observing :)")
+            self.exclude+=["observing_doctor"] #here!
+        return super(ObservationEntityAdmin, self).get_form(request, obj, **kwargs)
+
+    def save_model(self, request, obj, form, change):
+        if isinstance(request.user, Doctor): 
+            obj.observing_doctor = request.user
+        super().save_model(request, obj, form, change)
 
 @admin.register(Investigation)
 class InvestigationEntityAdmin(ImportExportModelAdmin):
@@ -136,7 +159,23 @@ class InvestigationEntityAdmin(ImportExportModelAdmin):
         qs = super(InvestigationEntityAdmin, self).get_queryset(request)
         if request.user.is_superuser:
             return qs
-        return qs.filter(patient__admitted_to = Hospital.objects.filter(admin=request.user)[0])
+        elif isinstance(request.user, Doctor):
+            qs.filter(patient__admitted_to = Hospital.objects.filter(admin=request.user)[0], investigating_doctor= request.user)
+        else:
+            return qs.filter(patient__admitted_to = Hospital.objects.filter(admin=request.user)[0])
+
+    def get_form(self, request, obj=None, **kwargs):
+        self.exclude = []
+        if isinstance(request.user, Doctor):
+            print("Doctor is investigating :)")
+            self.exclude+=["investigating_doctor"] #here!
+        return super(InvestigationEntityAdmin, self).get_form(request, obj, **kwargs)
+
+    def save_model(self, request, obj, form, change):
+        if isinstance(request.user, Doctor): 
+            obj.investigating_doctor = request.user
+        super().save_model(request, obj, form, change)
+
 
     def investigation_for_signs(self, obj):
         investigation_for_string = ""

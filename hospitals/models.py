@@ -1,8 +1,21 @@
 from django.db import models
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, User
 from django.utils import timezone
 import datetime
+from django.core.exceptions import ValidationError
 # Create your models here.
+
+def validate_department(self, obj):
+    if hasattr(obj, "observationn_for"):
+        if obj.observation_for.authorised_department is obj.observing_doctor.department:
+            if obj.patient.admitted_to is obj.observing_doctor.department.hospital:
+                return True
+    
+    elif hasattr(obj, "investigation_for"):
+        if obj.patient.admitted_to is obj.investigating_doctor.department.hospital:
+            return True
+    
+    raise ValidationError("Only doctors belonging to same hospital and authorised department can do the test!")
 
 
 class ServiceEntity(models.Model):
@@ -46,8 +59,16 @@ class Hospital(LocationEntity):
     
     def __str__(self):
         return str(self.name)
-    
-         
+
+class Department(models.Model):
+    hospital = models.ForeignKey(Hospital, on_delete=models.CASCADE)
+    name = models.CharField(max_length=50)
+
+class Doctor(User):
+    department = models.ForeignKey(Department, on_delete=models.CASCADE)
+
+    class Meta:
+        proxy = False
 
 class Ambulance(LocationEntity):
     registration_number = models.CharField(max_length=20, unique=True)
@@ -83,7 +104,7 @@ class MedicalService(LocationEntity):
 class Test(models.Model):
     name = models.CharField(max_length=50)
     description = models.TextField(max_length=150)
-
+    authorised_department = models.ForeignKey(Department, on_delete=models.CASCADE)
     def __str__(self):
         return str(self.name)
 
@@ -128,18 +149,20 @@ class Patient(models.Model):
 
 class Observation(models.Model):
     patient = models.ForeignKey(Patient, on_delete=models.CASCADE)
-    observation_for = models.ForeignKey(Test, on_delete=models.CASCADE)
+    observation_for = models.ForeignKey(Test, on_delete=models.CASCADE, validators=[validate_department])
     observation_value = models.CharField(max_length=100)
     observation_date = models.DateField(default=timezone.now())
-
+    observing_doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE)
     def __str__(self) -> str:
         return str(self.patient) +"-"+ str(self.observation_for) +"-"+ str(self.observation_date)
+
+    
 
 class Investigation(models.Model):
     patient = models.ForeignKey(Patient, on_delete=models.CASCADE)
     investigation_for = models.ManyToManyField(Sign, related_name="Markers")
     investigation_feedback = models.TextField(max_length=1000)
     investigation_date = models.DateField(default=timezone.now())
-
+    investigating_doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE, validators=[validate_department])
     def __str__(self) -> str:
         return str(self.patient) +"-"+ str(self.investigation_for) +"-"+ str(self.investigation_date)
